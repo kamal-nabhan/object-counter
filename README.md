@@ -42,7 +42,7 @@ docker run \
     --name=tfserving \
     -p 8500:8500 \
     -p 8501:8501 \
-    -v "$(pwd)\tmp\model:/models" \
+    -v "$(pwd)/tmp/model:/models" \
     -e OMP_NUM_THREADS=$num_physical_cores \
     -e TENSORFLOW_INTER_OP_PARALLELISM=2 \
     -e TENSORFLOW_INTRA_OP_PARALLELISM=$num_physical_cores \
