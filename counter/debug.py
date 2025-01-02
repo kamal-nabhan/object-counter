@@ -11,7 +11,7 @@ def draw(predictions, image, image_name):
     font = ImageFont.truetype("counter/resources/arial.ttf", 20)
     i = 0
     for prediction in predictions:
-        box = prediction.box
+        box = prediction.b_box
         draw_image.rectangle(
             [(box.xmin * image_width, box.ymin * image_height),
              (box.xmax * image_width, box.ymax * image_height)],

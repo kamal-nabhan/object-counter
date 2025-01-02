@@ -6,7 +6,7 @@ from counter.adapters.count_repo import (
     CountPostgreSQLRepo,
 )
 from counter.adapters.object_detector import TFSObjectDetector, FakeObjectDetector
-from counter.domain.actions import CountDetectedObjects
+from counter.domain.actions import CountDetectedObjects, PredictedObjects
 
 
 def dev_count_action() -> CountDetectedObjects:
@@ -44,7 +44,18 @@ def prod_count_action() -> CountDetectedObjects:
         )
 
 
+def predict_action() -> PredictedObjects:
+    tfs_host = os.environ.get("TFS_HOST", "localhost")
+    tfs_port = int(os.environ.get("TFS_PORT", 8501))
+    return PredictedObjects(TFSObjectDetector(tfs_host, tfs_port, "rfcn"))
+
+
 def get_count_action() -> CountDetectedObjects:
     env = os.environ.get("ENV", "dev")
     count_action_fn = f"{env}_count_action"
     return globals()[count_action_fn]()
+
+
+def get_predict_action() -> PredictedObjects:
+    predict_fn = f"predict_action"
+    return globals()[predict_fn]()

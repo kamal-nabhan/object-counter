@@ -13,7 +13,7 @@ class FakeObjectDetector(ObjectDetector):
     def predict(self, image: BinaryIO) -> List[Prediction]:
         return [Prediction(class_name='cat',
                            score=0.999190748,
-                           box=Box(xmin=0.367288858, ymin=0.278333426,
+                           b_box=Box(xmin=0.367288858, ymin=0.278333426,
                                    xmax=0.735821366, ymax=0.6988855)
                            ),
                 ]
@@ -54,6 +54,6 @@ class TFSObjectDetector(ObjectDetector):
             detection_score = raw_predictions['detection_scores'][i]
             detection_class = raw_predictions['detection_classes'][i]
             class_name = self.classes_dict[detection_class]
-            predictions.append(Prediction(class_name=class_name, score=detection_score, box=box))
+            predictions.append(Prediction(class_name=class_name, score=detection_score, b_box=box))
         print(predictions)
         return predictions

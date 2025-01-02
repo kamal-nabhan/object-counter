@@ -71,7 +71,13 @@ class CountPostgreSQLRepo(ObjectCountRepo):
         query = self.session.query(ObjectCount_PG)
         if object_classes:
             query = query.filter(ObjectCount_PG.object_class.in_(object_classes))
-        return query.all()
+        total_objects = query.all()
+        # Create a list of dictionary to be
+        # returned for reading the database
+        total_object_list=[]
+        for item in total_objects:
+            total_object_list.append(item.to_dict())
+        return total_object_list
 
     def update_values(self, new_values: List[ObjectCount]):
         for value in new_values:

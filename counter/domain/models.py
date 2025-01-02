@@ -14,7 +14,7 @@ class Box:
 class Prediction:
     class_name: str
     score: float
-    box: Box
+    b_box: Box
 
 
 @dataclass
@@ -27,3 +27,8 @@ class ObjectCount:
 class CountResponse:
     current_objects: List[ObjectCount]
     total_objects: List[ObjectCount]
+
+
+@dataclass
+class PredictionResponse:
+    predictions: List[Prediction]
