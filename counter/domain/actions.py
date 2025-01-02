@@ -7,7 +7,9 @@ from counter.domain.predictions import over_threshold, count
 
 
 class CountDetectedObjects:
-    def __init__(self, object_detector: ObjectDetector, object_count_repo: ObjectCountRepo):
+    def __init__(
+        self, object_detector: ObjectDetector, object_count_repo: ObjectCountRepo
+    ):
         self.__object_detector = object_detector
         self.__object_count_repo = object_count_repo
 
@@ -22,7 +24,11 @@ class CountDetectedObjects:
         predictions = self.__object_detector.predict(image)
         self.__debug_image(image, predictions, "all_predictions.jpg")
         valid_predictions = list(over_threshold(predictions, threshold=threshold))
-        self.__debug_image(image, valid_predictions, f"valid_predictions_with_threshold_{threshold}.jpg")
+        self.__debug_image(
+            image,
+            valid_predictions,
+            f"valid_predictions_with_threshold_{threshold}.jpg",
+        )
         return valid_predictions
 
     @staticmethod
@@ -44,7 +50,11 @@ class PredictedObjects:
         predictions = self.__object_detector.predict(image)
         self.__debug_image(image, predictions, "all_predictions.jpg")
         valid_predictions = list(over_threshold(predictions, threshold=threshold))
-        self.__debug_image(image, valid_predictions, f"valid_predictions_with_threshold_{threshold}.jpg")
+        self.__debug_image(
+            image,
+            valid_predictions,
+            f"valid_predictions_with_threshold_{threshold}.jpg",
+        )
         return valid_predictions
 
     @staticmethod
@@ -52,4 +62,3 @@ class PredictedObjects:
         if __debug__ and image is not None:
             image = Image.open(image)
             draw(predictions, image, image_name)
-

@@ -15,11 +15,7 @@ class ObjectCount_PG(Base):
 
     # Return a dictionary for each object in the database
     def to_dict(self) -> Dict:
-        return {
-            "id": self.id,
-            "object_class": self.object_class,
-            "count": self.count
-        }
+        return {"id": self.id, "object_class": self.object_class, "count": self.count}
 
 
 def engine(db_url):

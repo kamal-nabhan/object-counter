@@ -18,4 +18,3 @@ class ObjectCountRepo(ABC):
     @abstractmethod
     def update_values(self, new_values: List[ObjectCount]):
         raise NotImplementedError
-

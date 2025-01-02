@@ -8,7 +8,6 @@ from counter.adapters.sqlalchemy_pg_adapter import ObjectCount_PG, engine
 
 
 class CountInMemoryRepo(ObjectCountRepo):
-
     def __init__(self):
         self.store = dict()
 
@@ -31,7 +30,6 @@ class CountInMemoryRepo(ObjectCountRepo):
 
 
 class CountMongoDBRepo(ObjectCountRepo):
-
     def __init__(self, host, port, database):
         self.__host = host
         self.__port = port
@@ -63,7 +61,6 @@ class CountMongoDBRepo(ObjectCountRepo):
 
 
 class CountPostgreSQLRepo(ObjectCountRepo):
-
     def __init__(self, db_url):
         self.engine, self.session = engine(db_url)
 
@@ -74,7 +71,7 @@ class CountPostgreSQLRepo(ObjectCountRepo):
         total_objects = query.all()
         # Create a list of dictionary to be
         # returned for reading the database
-        total_object_list=[]
+        total_object_list = []
         for item in total_objects:
             total_object_list.append(item.to_dict())
         return total_object_list

@@ -74,13 +74,25 @@ docker rm -f test-mongo
 docker run --name test-mongo --rm -p 27017:27017 -d mongo:latest
 ```
 
+## Run Postgres
+
+```bash
+docker rm -f test-postgres
+sudo docker run --name test-postgres \
+        --rm -p 5432:5432 \
+        -e POSTGRES_USER=postgres \
+        -e POSTGRES_PASSWORD=postgres \
+        -e POSTGRES_DB=OBJ_COUNT \
+        -v postgres:/var/lib/postgresql/data \
+        -d postgres:latest
+```
+
 
 ## Setup virtualenv
 
 ```bash
 # Python >= 3.0
-python -m venv .venv
-source .venv/bin/activate
+conda create -n test_obj_counter python=3.9 -y && conda activate test_obj_counter
 pip install -r requirements.txt
 ```
 
@@ -97,6 +109,10 @@ python -m counter.entrypoints.webapp
 # Unix
 ENV=prod python -m counter.entrypoints.webapp
 
+# or
+ENV=prod DATABASE=postgres db_url="postgresql://postgres:postgres@localhost:5432/OBJ_COUNT" python -m counter.entrypoints.webapp
+
+
 # Powershell
 $env:ENV = "prod"
 python -m counter.entrypoints.webapp
@@ -105,9 +121,20 @@ python -m counter.entrypoints.webapp
 ## Call the service
 
 ```shell script
- curl -F "threshold=0.9" -F "file=@resources/images/boy.jpg" http://0.0.0.0:5000/object-count
- curl -F "threshold=0.9" -F "file=@resources/images/cat.jpg" http://0.0.0.0:5000/object-count
- curl -F "threshold=0.9" -F "file=@resources/images/food.jpg" http://0.0.0.0:5000/object-count 
+# Authorize with Username/Password
+curl -X POST http://0.0.0.0:5000/auth -H "Content-Type: application/json" -d '{"username": "admin", "password": "password"}'
+
+# Sample Output: {
+#   "token": "b'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUz....'"
+# }
+
+# Pass Authorized Token for object-count API
+curl -X POST -F "threshold=0.9" -F "file=@resources/images/boy.jpg" -H "Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUz..." http://0.0.0.0:5000/object-count
+
+# API for returning prediction list
+ curl -F "threshold=0.9" -F "file=@resources/images/boy.jpg" http://0.0.0.0:5000/predict
+ curl -F "threshold=0.9" -F "file=@resources/images/cat.jpg" http://0.0.0.0:5000/predict
+ curl -F "threshold=0.9" -F "file=@resources/images/food.jpg" http://0.0.0.0:5000/predict 
 ```
 
 ## Run the tests
