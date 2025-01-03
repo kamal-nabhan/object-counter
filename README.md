@@ -17,6 +17,8 @@ The model used in this example has been taken from
 
 
 ## Instructions to configure this project
+
+## Manual Configuration
 ```
 # Download the rfcn model 
 wget https://storage.googleapis.com/intel-optimized-tensorflow/models/v1_8/rfcn_resnet101_fp32_coco_pretrained_model.tar.gz
@@ -28,7 +30,7 @@ mv tmp/rfcn_resnet101_coco_2018_01_28/saved_model/saved_model.pb tmp/model/rfcn/
 rm -rf tmp/rfcn_resnet101_coco_2018_01_28
 ```
 
-## Setup and run Tensorflow Serving
+### Setup and run Tensorflow Serving
 
 ```
 
@@ -67,14 +69,14 @@ docker run `
 ```
 
 
-## Run mongo 
+### Run mongo 
 
 ```bash
 docker rm -f test-mongo
 docker run --name test-mongo --rm -p 27017:27017 -d mongo:latest
 ```
 
-## Run Postgres
+### Run Postgres
 
 ```bash
 docker rm -f test-postgres
@@ -88,7 +90,7 @@ sudo docker run --name test-postgres \
 ```
 
 
-## Setup virtualenv
+### Setup virtualenv
 
 ```bash
 # Python >= 3.0
@@ -96,14 +98,22 @@ conda create -n test_obj_counter python=3.9 -y && conda activate test_obj_counte
 pip install -r requirements.txt
 ```
 
+## Automated Configuration
+
+You can also use the Docker Compose file for simplified setup. For detailed instructions, refer to the DOCKER.md file or execute the script:
+
+```bash
+source run_docker_services.sh
+```
+
 ## Run the application
 
-### Using fakes
+#### Using fakes
 ```
 python -m counter.entrypoints.webapp
 ```
 
-### Using real services in docker containers
+#### Using real services in docker containers
 
 ```
 # Unix
@@ -118,18 +128,21 @@ $env:ENV = "prod"
 python -m counter.entrypoints.webapp
 ```
 
-## Call the service
+### Call the service
 
 ```shell script
+# Run the Health checkup to see if all dependencies are up
+curl -X GET http://0.0.0.0:5000/health
+
 # Authorize with Username/Password
-curl -X POST http://0.0.0.0:5000/auth -H "Content-Type: application/json" -d '{"username": "admin", "password": "password"}'
+curl -X POST http://0.0.0.0:5000/auth -H "Content-Type: application/json" -d '{"username": "user2", "password": "user2password"}'
 
 # Sample Output: {
 #   "token": "b'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUz....'"
 # }
 
 # Pass Authorized Token for object-count API
-curl -X POST -F "threshold=0.9" -F "file=@resources/images/boy.jpg" -H "Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUz..." http://0.0.0.0:5000/object-count
+curl -X POST -F "threshold=0.9" -F "file=@resources/images/boy.jpg" -H "Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InVzZXIyIiwiZXhwIjoxNzM1OTAyNjgxfQ.DlgrTzahgPedkK7VawvMS5Ibc-0alXXv8rHquyf_zpc" http://0.0.0.0:5000/object-count
 
 # API for returning prediction list
  curl -F "threshold=0.9" -F "file=@resources/images/boy.jpg" http://0.0.0.0:5000/predict
@@ -137,7 +150,7 @@ curl -X POST -F "threshold=0.9" -F "file=@resources/images/boy.jpg" -H "Authoriz
  curl -F "threshold=0.9" -F "file=@resources/images/food.jpg" http://0.0.0.0:5000/predict 
 ```
 
-## Run the tests
+### Run the tests
 
 ```
 pytest

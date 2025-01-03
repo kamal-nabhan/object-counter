@@ -1,7 +1,7 @@
+cd ../
 cores_per_socket=`lscpu | grep "Core(s) per socket" | cut -d':' -f2 | xargs`
 num_sockets=`lscpu | grep "Socket(s)" | cut -d':' -f2 | xargs`
 num_physical_cores=$((cores_per_socket * num_sockets))
-
 
 sudo docker run \
     --name=tfserving \

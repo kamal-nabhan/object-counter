@@ -14,12 +14,12 @@ def dev_count_action() -> CountDetectedObjects:
 
 
 def prod_count_action() -> CountDetectedObjects:
-    tfs_host = os.environ.get("TFS_HOST", "localhost")
+    tfs_host = os.environ.get("TFS_HOST", "tfserving")
     tfs_port = int(os.environ.get("TFS_PORT", 8501))
     db_type = os.environ.get("DATABASE", "mongodb")
 
     if db_type == "mongodb":
-        mongo_host = os.environ.get("MONGO_HOST", "localhost")
+        mongo_host = os.environ.get("MONGO_HOST", "mongo")
         mongo_port = int(os.environ.get("MONGO_PORT", 27017))
         mongo_db = os.environ.get("MONGO_DB", "prod_counter")
         return CountDetectedObjects(
@@ -45,7 +45,7 @@ def prod_count_action() -> CountDetectedObjects:
 
 
 def predict_action() -> PredictedObjects:
-    tfs_host = os.environ.get("TFS_HOST", "localhost")
+    tfs_host = os.environ.get("TFS_HOST", "tfserving")
     tfs_port = int(os.environ.get("TFS_PORT", 8501))
     return PredictedObjects(TFSObjectDetector(tfs_host, tfs_port, "rfcn"))
 

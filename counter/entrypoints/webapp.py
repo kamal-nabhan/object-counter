@@ -1,10 +1,12 @@
 from flask import Flask, request, jsonify
 from io import BytesIO
-from werkzeug.exceptions import Unauthorized
 import jwt
 import datetime
 from functools import wraps
+import requests
+from pymongo import MongoClient
 from counter import config
+import psycopg2
 
 JWT_SECRET = "381836fe163039ab7bcd0a84bf54dded9fbd4269"
 JWT_ALGORITHM = "HS256"
@@ -24,19 +26,18 @@ def create_app():
     predict_action = config.get_predict_action()
 
     # Utility function to validate JWT tokens
-    def token_required(f):
+    def protected_route(f):
         @wraps(f)
         def decorated(*args, **kwargs):
             token = request.headers.get("Authorization")
-            print("token :", token)
             if not token:
-                raise Unauthorized("Token is missing")
+                return "Token is missing", 401
             try:
                 jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
             except jwt.ExpiredSignatureError:
-                raise Unauthorized("Token has expired")
+                return "Token has expired", 401
             except jwt.InvalidTokenError:
-                raise Unauthorized("Invalid token")
+                return "Invalid token", 401
             return f(*args, **kwargs)
 
         return decorated
@@ -57,7 +58,6 @@ def create_app():
             None,
         )
 
-        # Replace with actual authentication logic
         if user:
             token = jwt.encode(
                 {
@@ -67,13 +67,12 @@ def create_app():
                 JWT_SECRET,
                 algorithm=JWT_ALGORITHM,
             )
-            # return str({'token': token})
             return jsonify({"token": str(token)})
         else:
-            return "Invalid credentials\n", 401
+            return "Invalid credentials", 401
 
     @app.route("/object-count", methods=["POST"])
-    @token_required
+    @protected_route
     def object_detection():
 
         threshold = float(request.form.get("threshold", 0.5))
@@ -94,6 +93,64 @@ def create_app():
         uploaded_file.save(image)
         predict_response = predict_action.execute(image, threshold)
         return jsonify(predict_response)
+
+    @app.route("/health", methods=["GET"])
+    def health_check():
+        """
+        Health check endpoint to verify the application's health, including dependencies.
+        """
+        health_status = {
+            "status": "healthy",
+            "timestamp": datetime.datetime.utcnow().isoformat(),
+            "dependencies": {},
+        }
+
+        try:
+            # Check TensorFlow Serving health
+            tfserving_url = "http://tfserving:8501/v1/models/rfcn"
+            tfserving_response = requests.get(tfserving_url)
+            if tfserving_response.status_code == 200:
+                health_status["dependencies"]["tfserving"] = "healthy"
+            else:
+                health_status["dependencies"][
+                    "tfserving"
+                ] = f"unhealthy (status code: {tfserving_response.status_code})"
+                health_status["status"] = "unhealthy"
+
+        except Exception as e:
+            health_status["dependencies"]["tfserving"] = f"unhealthy (error: {str(e)})"
+            health_status["status"] = "unhealthy"
+
+        try:
+            # Check MongoDB health
+            mongo_client = MongoClient("mongodb://mongo:27017")
+            mongo_client.admin.command("ping")
+            health_status["dependencies"]["mongodb"] = "healthy"
+        except Exception as e:
+            health_status["dependencies"]["mongodb"] = f"unhealthy (error: {str(e)})"
+            health_status["status"] = "unhealthy"
+
+        try:
+            # Check PostgreSQL health
+            postgres_conn = psycopg2.connect(
+                dbname="OBJ_COUNT",
+                user="postgres",
+                password="postgres",
+                host="postgres",
+                port="5432",
+            )
+            cursor = postgres_conn.cursor()
+            cursor.execute("SELECT 1;")
+            postgres_conn.close()
+            health_status["dependencies"]["postgresql"] = "healthy"
+        except Exception as e:
+            health_status["dependencies"]["postgresql"] = f"unhealthy (error: {str(e)})"
+            health_status["status"] = "unhealthy"
+
+        # Return the consolidated health status
+        return jsonify(health_status), (
+            200 if health_status["status"] == "healthy" else 500
+        )
 
     return app
 

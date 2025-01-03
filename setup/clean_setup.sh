@@ -1,8 +1,3 @@
-sudo docker rm -f tfserving
-sudo docker rm -f test-mongo
-sudo docker rm -f test-postgres
-sudo docker rm -f object-counter-app-1
-sudo docker image rm -f object-counter-app
-sudo docker image rm -f postgres:latest
-sudo docker image rm -f mongo:latest
-
+sudo docker-compose down --volumes --remove-orphans
+sudo docker rm -f tfserving test-mongo test-postgres object-counter-app mongo-db object-counter-postgres
+sudo docker rmi -f object-counter-app postgres:latest mongo:latest

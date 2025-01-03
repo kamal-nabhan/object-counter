@@ -1,4 +1,5 @@
 # Download the rfcn model 
+cd ../
 wget https://storage.googleapis.com/intel-optimized-tensorflow/models/v1_8/rfcn_resnet101_fp32_coco_pretrained_model.tar.gz
 tar -xzvf rfcn_resnet101_fp32_coco_pretrained_model.tar.gz -C tmp
 rm rfcn_resnet101_fp32_coco_pretrained_model.tar.gz

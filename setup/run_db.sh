@@ -1,4 +1,4 @@
-
+cd ../
 sudo docker run --name test-mongo --rm -p 27017:27017 -d mongo:latest
 
 sudo docker run --name test-postgres \

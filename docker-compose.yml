@@ -1,0 +1,73 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: object-counter-app
+    ports:
+      - "5000:5000"
+    depends_on:
+      - tfserving
+      - postgres
+      - mongo
+    environment:
+      - ENV=prod
+      # Uncomment the database you want to use and comment the other one
+      # For PostgreSQL
+      # - DATABASE=postgres
+      # - db_url=postgresql://postgres:postgres@postgres:5432/OBJ_COUNT
+      # For MongoDB
+      - DATABASE=mongodb
+      - db_url=mongodb://mongo:27017/OBJ_COUNT
+    volumes:
+      - .:/app
+    networks:
+      - app-network
+
+  tfserving:
+    image: intel/intel-optimized-tensorflow-serving:2.8.0
+    container_name: tfserving
+    ports:
+      - "8501:8501"
+      - "8500:8500"
+    volumes:
+      - ./tmp/model:/models
+    environment:
+      - OMP_NUM_THREADS=${NUM_PHYSICAL_CORES}
+      - TENSORFLOW_INTER_OP_PARALLELISM=2
+      - TENSORFLOW_INTRA_OP_PARALLELISM=${NUM_PHYSICAL_CORES}
+    command: --model_config_file=/models/model_config.config
+    networks:
+      - app-network
+  
+  mongo:
+    image: mongo:latest
+    container_name: test-mongo
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo-db:/data/db
+    networks:
+      - app-network
+  
+  postgres:
+    image: postgres:latest
+    container_name: test-postgres
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=OBJ_COUNT
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+networks:
+  app-network: 
+  
+volumes:
+  mongo-db:
+  postgres-data:
+
