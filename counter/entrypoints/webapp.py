@@ -33,7 +33,15 @@ def create_app():
             if not token:
                 return "Token is missing", 401
             try:
-                jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+                payload = jwt.decode(token, JWT_SECRET, algorithms=[JWT_ALGORITHM])
+                username = payload.get("username")
+
+                # Check if the username exists in USER_DB
+                user_exists = any(user["username"] == username for user in USER_DB)
+
+                if not user_exists:
+                    return "Invalid User access", 401
+
             except jwt.ExpiredSignatureError:
                 return "Token has expired", 401
             except jwt.InvalidTokenError:

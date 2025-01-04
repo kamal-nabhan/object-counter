@@ -142,7 +142,7 @@ curl -X POST http://0.0.0.0:5000/auth -H "Content-Type: application/json" -d '{"
 # }
 
 # Pass Authorized Token for object-count API
-curl -X POST -F "threshold=0.9" -F "file=@resources/images/boy.jpg" -H "Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VybmFtZSI6InVzZXIyIiwiZXhwIjoxNzM1OTAyNjgxfQ.DlgrTzahgPedkK7VawvMS5Ibc-0alXXv8rHquyf_zpc" http://0.0.0.0:5000/object-count
+curl -X POST -F "threshold=0.9" -F "file=@resources/images/cat.jpg" -H "Authorization:eyJ0eXAiOiJKV1QiLCJhbGciOiJIUz...." http://0.0.0.0:5000/object-count
 
 # API for returning prediction list
  curl -F "threshold=0.9" -F "file=@resources/images/boy.jpg" http://0.0.0.0:5000/predict
